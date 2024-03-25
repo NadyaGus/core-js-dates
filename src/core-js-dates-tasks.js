@@ -312,8 +312,55 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  const { start, end } = period;
+  const arrStart = start.split('-');
+  const arrEnd = end.split('-');
+
+  const monthsStartWithZero = 1;
+
+  const dateStart = new Date(
+    arrStart[2],
+    arrStart[1] - monthsStartWithZero,
+    arrStart[0]
+  );
+  const dateEnd = new Date(
+    arrEnd[2],
+    arrEnd[1] - monthsStartWithZero,
+    arrEnd[0]
+  );
+
+  const convertToString = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    return [
+      `${day}`.padStart(2, 0),
+      `${month + monthsStartWithZero}`.padStart(2, 0),
+      year,
+    ].join('-');
+  };
+
+  const calendar = [];
+
+  while (Date.parse(dateStart) <= Date.parse(dateEnd)) {
+    const string = convertToString(dateStart);
+    calendar.push(string);
+    dateStart.setDate(dateStart.getDate() + 1);
+  }
+
+  const schedule = [];
+  let workDay = 0;
+  for (let i = 0; i < calendar.length; i += 1) {
+    if (workDay < countWorkDays) {
+      workDay += 1;
+      schedule.push(calendar[i]);
+    } else {
+      i += countOffDays - 1;
+      workDay = 0;
+    }
+  }
+  return schedule;
 }
 
 /**
@@ -328,8 +375,20 @@ function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
  * Date(2022, 2, 1) => false
  * Date(2020, 2, 1) => true
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
+function isLeapYear(date) {
+  const currentYear = new Date(date).getFullYear();
+
+  if (currentYear % 4 === 0) {
+    if (currentYear % 400 === 0) {
+      return true;
+    }
+    if (currentYear % 100 === 0) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
 }
 
 module.exports = {
